@@ -1,12 +1,9 @@
 /**
- * {description of this file}
  * @author yutent<yutent.io@gmail.com>
  * @date 2020/09/16 14:52:58
  */
 
-import STATUS_TEXT from './lib/http-code-msg.json'
-
-const CHARSET_REGEXP = /;\s*charset\s*=/
+import STATUS_TEXT from './lib/http-code.js'
 
 export default class Response {
   constructor(req, res) {
@@ -45,16 +42,20 @@ export default class Response {
     if (this.rendered) {
       return
     }
-    let prev = this.get(key)
-    let value = val
+    var prev = this.get(key)
+    var value
+
+    if (Array.isArray(val)) {
+      value = val
+    } else {
+      value = [val]
+    }
 
     if (prev) {
       if (Array.isArray(prev)) {
         value = prev.concat(val)
-      } else if (Array.isArray(val)) {
-        value = [prev].concat(val)
       } else {
-        value = [prev, val]
+        value = [prev].concat(val)
       }
     }
     return this.set(key, value)
@@ -185,9 +186,13 @@ export default class Response {
       return this
     }
     if (arguments.length === 2) {
-      let value = Array.isArray(val) ? val.map(String) : String(val)
+      var value = Array.isArray(val) ? val.map(String) : String(val)
 
-      if (key.toLowerCase() === 'content-type' && !CHARSET_REGEXP.test(value)) {
+      if (
+        key.toLowerCase() === 'content-type' &&
+        typeof value === 'string' &&
+        value.indexOf('charset') < 0
+      ) {
         value += '; charset=utf-8'
       }
 
