@@ -1,11 +1,15 @@
 {
   "name": "@gm5/response",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "对Http的response进一步封装, 提供常用的API",
   "main": "index.js",
   "author": "yutent",
-  "keywords": ["fivejs", "response", "http"],
+  "keywords": [
+    "fivejs",
+    "response",
+    "http"
+  ],
   "repository": "https://github.com/bytedo/gm5.response.git",
   "license": "MIT"
 }
