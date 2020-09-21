@@ -144,16 +144,22 @@ response.render(txt)
 response.render("You're not able to here", 401) 
 ```
 
-### sendfile(data, filename)
+### sendfile(target, name)
 
-* data `<String>` | `<Buffer>`
-* filename `<String>`
+* target `<String>` | `<Buffer>` 可以是文件路径, 可以是文本, 可以是Buffer
+* name `<String>` 要保存的文件名
 
 > 直接以附件形式响应, 作为文件下载功能.
 
 ```javascript
+// 不推荐
 let pic = fs.readFileSync('./boy.jpg')
-response.sendfile(pic, 'a-little-boy.jpg') //
+response.sendfile(pic, 'a-little-boy.jpg') 
+
+// 推荐使用
+response.sendfile('./boy.jpg', 'a-little-boy.jpg') 
+
+response.sendfile('blablabla', 'bb.txt') 
 ```
 
 

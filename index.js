@@ -3,6 +3,7 @@
  * @date 2020/09/16 14:52:58
  */
 
+import fs from 'iofs'
 import STATUS_TEXT from './lib/http-code.js'
 
 export default class Response {
@@ -105,14 +106,31 @@ export default class Response {
   }
 
   // 文件下载
-  sendfile(data, filename) {
+  sendfile(target, filename) {
     if (this.rendered) {
       return
     }
+    var data
+
     this.set('Content-Type', 'application/force-download')
     this.set('Accept-Ranges', 'bytes')
-    this.set('Content-Length', Buffer.byteLength(data))
     this.set('Content-Disposition', `attachment;filename="${filename}"`)
+
+    if (Buffer.isBuffer(target)) {
+      data = target
+    } else {
+      if (typeof target === 'string') {
+        var stat = fs.stat(target)
+        if (stat.isFile()) {
+          this.set('Content-Length', stat.size)
+          fs.origin.createReadStream(target).pipe(this.origin.res)
+          return
+        }
+      }
+      data = Buffer.from(target + '')
+    }
+
+    this.set('Content-Length', data.length)
     this.end(data)
   }
 
