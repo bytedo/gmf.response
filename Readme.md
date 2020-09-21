@@ -138,7 +138,7 @@ response.location('/foo')
 let html = fs.readFileSync('./index.html')
 response.render(html) // send from a html file.
 
-let txt = '<h1>hello doJS</h1>'
+let txt = '<h1>hello world</h1>'
 response.render(txt)
 
 response.render("You're not able to here", 401) 
@@ -189,3 +189,12 @@ response.send(200, 'success', { name: 'foo', age: 16 }, 'blabla')
 * data `<String>` | `<Buffer>` optional
 
 > 向客户端输出内容。
+
+
+### cookie(key, value, options)
+
+* key `<String>`
+* value `<String>` 
+* options `<Object>` 额外配置[可选]
+
+> 向客户端写入cookies。

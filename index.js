@@ -5,6 +5,7 @@
 
 import fs from 'iofs'
 import STATUS_TEXT from './lib/http-code.js'
+import { serialize } from './lib/cookie.js'
 
 export default class Response {
   constructor(req, res) {
@@ -32,34 +33,6 @@ export default class Response {
 
   status(code = 404) {
     this.statusCode = code
-  }
-
-  /**
-   * [append 往header插入信息]
-   * @param  {String} key [description]
-   * @param  {String} val [description]
-   */
-  append(key, val) {
-    if (this.rendered) {
-      return
-    }
-    var prev = this.get(key)
-    var value
-
-    if (Array.isArray(val)) {
-      value = val
-    } else {
-      value = [val]
-    }
-
-    if (prev) {
-      if (Array.isArray(prev)) {
-        value = prev.concat(val)
-      } else {
-        value = [prev].concat(val)
-      }
-    }
-    return this.set(key, value)
   }
 
   /**
@@ -148,8 +121,14 @@ export default class Response {
       return
     }
     if (typeof code !== 'number') {
-      msg = code + ''
-      code = 400
+      if (typeof code === 'object') {
+        data = code
+        code = 200
+        msg = STATUS_TEXT[code]
+      } else {
+        msg = code + ''
+        code = 400
+      }
     } else if (typeof msg === 'object') {
       data = msg
       code = code || 200
@@ -221,5 +200,63 @@ export default class Response {
       }
     }
     return this
+  }
+
+  /**
+   * [append 往header插入信息]
+   * @param  {String} key [description]
+   * @param  {String} val [description]
+   */
+  append(key, val) {
+    if (this.rendered) {
+      return
+    }
+    var prev = this.get(key)
+    var value
+
+    if (Array.isArray(val)) {
+      value = val
+    } else {
+      value = [val]
+    }
+
+    if (prev) {
+      if (Array.isArray(prev)) {
+        value = prev.concat(val)
+      } else {
+        value = [prev].concat(val)
+      }
+    }
+    return this.set(key, value)
+  }
+
+  /**
+   * [set 设置cookie]
+   * @param {[string]} key
+   * @param {[string/number]} val
+   * @param {[object]} opts [设置cookie的额外信息,如域,有效期等]
+   */
+  cookie(key, val, opts = {}) {
+    //读取之前已经写过的cookie缓存
+    var cache = this.get('set-cookie')
+    if (cache) {
+      if (!Array.isArray(cache)) {
+        cache = [cache]
+      }
+    } else {
+      cache = []
+    }
+
+    if (cache.length > 0) {
+      // 如果之前已经写了一个相同的cookie, 则删除之前的
+      cache = cache.filter(it => {
+        let _key = it.split('=')[0].trim()
+        return key !== _key
+      })
+    }
+
+    cache.push(serialize(key, val, opts))
+
+    this.set('set-cookie', cache)
   }
 }
