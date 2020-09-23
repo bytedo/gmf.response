@@ -10,7 +10,7 @@ import { serialize } from './lib/cookie.js'
 export default class Response {
   constructor(req, res) {
     this.origin = { req, res }
-    this.rendered = false
+    this.rendered = !!res.rendered
   }
 
   /**
